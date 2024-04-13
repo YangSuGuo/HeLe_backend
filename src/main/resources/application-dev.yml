@@ -8,7 +8,7 @@ spring:
   mail:
     host: smtp.139.com
     username: dr.ysg@139.com
-    password: VZMH5409
+    password: f4973afe85ac75547300
   rabbitmq:
     addresses: localhost
     username: admin
