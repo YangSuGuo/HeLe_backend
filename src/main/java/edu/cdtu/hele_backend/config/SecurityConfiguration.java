@@ -48,27 +48,24 @@ public class SecurityConfiguration {
         return http
                 // API授权
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/api/auth/**", "/error").permitAll()
-                        .anyRequest().hasAnyRole(Const.ROLE_DEFAULT)
+                        .requestMatchers("/api/auth/**", "/error")
+                        .permitAll().anyRequest().authenticated()
+//                        .hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限
                 )
                 // 登录
                 .formLogin(conf -> conf
                         .loginProcessingUrl("/api/auth/login")
                         .successHandler(this::onAuthenticationSuccess)
-                        .failureHandler(this::onAuthenticationFailure)
-                        .permitAll()
-                )
+                        .failureHandler(this::onAuthenticationFailure).permitAll())
                 // 退出登录
                 .logout(conf -> conf
                         .logoutUrl("/api/auth/logout")
-                        .logoutSuccessHandler(this::onLogoutSuccess)
-                )
+                        .logoutSuccessHandler(this::onLogoutSuccess))
                 // 未登录
                 .exceptionHandling(conf -> conf
                         .authenticationEntryPoint(this::onUnauthorized)
                         // 登录但无权限
-                        .accessDeniedHandler(this::onAccessDeny)
-                )
+                        .accessDeniedHandler(this::onAccessDeny))
                 // csrf 关闭
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(conf -> conf
@@ -79,23 +76,29 @@ public class SecurityConfiguration {
     }
 
     // 登录成功
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         User user = (User) authentication.getPrincipal();
-        String token = utils.createJwt(user, "ysg", 1);
+        String token = utils.createJwt(user, "user", 1);
         response.getWriter().write(RestBean.success(token).asJsonString());
     }
 
     // 登录失败
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(RestBean.unauthorized("无权限").asJsonString());
     }
 
     // 退出成功
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request,
+                                HttpServletResponse response,
+                                Authentication authentication) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter writer = response.getWriter();
@@ -108,16 +111,20 @@ public class SecurityConfiguration {
     }
 
     // 未登录
-    public void onUnauthorized(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void onUnauthorized(HttpServletRequest request,
+                               HttpServletResponse response,
+                               AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(RestBean.unauthorized("无权限").asJsonString());
     }
 
     // 登录但无权限
-    public void onAccessDeny(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void onAccessDeny(HttpServletRequest request,
+                             HttpServletResponse response,
+                             AccessDeniedException accessDeniedException) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(RestBean.forbidden("无权限").asJsonString());
+        response.getWriter().write(RestBean.forbidden("已登录-无权限").asJsonString());
     }
 }

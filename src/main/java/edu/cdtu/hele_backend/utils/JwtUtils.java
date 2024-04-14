@@ -14,10 +14,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,15 +85,13 @@ public class JwtUtils {
             Algorithm algorithm = Algorithm.HMAC256(key);
             Date expire = this.expireTime();
             return JWT.create()
-                    .withJWTId(UUID.randomUUID().toString())
-                    .withClaim("id", userId)
-                    .withClaim("name", username)
-                    .withClaim("authorities", user.getAuthorities()
-                            .stream()
-                            .map(GrantedAuthority::getAuthority).toList())
-                    .withExpiresAt(expire)
-                    .withIssuedAt(new Date())
-                    .sign(algorithm);
+                    .withJWTId(UUID.randomUUID().toString()) // 令牌id
+                    .withClaim("id", userId) //用户id
+                    .withClaim("name", username) //用户名
+                    .withClaim("authorities", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()) // 用户权限
+                    .withExpiresAt(expire) // 令牌过期时间
+                    .withIssuedAt(new Date()) // 令牌签发时间
+                    .sign(algorithm); // 生成令牌
         } else {
             return null;
         }
@@ -116,8 +111,10 @@ public class JwtUtils {
         try {
             DecodedJWT verify = jwtVerifier.verify(token);
             if (this.isInvalidToken(verify.getId())) return null; // 检测jwt 是否在黑名单
+            // bug 用户权限为空 导致api接口返回403
             Map<String, Claim> claims = verify.getClaims();
-            return new Date().after(claims.get("exp").asDate()) ? null : verify;
+            System.out.println(claims.toString());
+            return new Date().after(claims.get("exp").asDate()) ? null : verify; // 检测令牌是否过期
         } catch (JWTVerificationException e) {
             return null;
         }
