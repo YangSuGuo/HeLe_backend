@@ -18,18 +18,22 @@ public record RestBean<T> (long id, int code, T data, String message) {
         return new RestBean<>(requestId(), 200, data, "请求成功");
     }
 
+    // 200
     public static <T> RestBean<T> success(){
         return success(null);
     }
 
+    // 403
     public static <T> RestBean<T> forbidden(String message){
         return failure(403, message);
     }
 
+    // 401
     public static <T> RestBean<T> unauthorized(String message){
         return failure(401, message);
     }
 
+    // 404
     public static <T> RestBean<T> failure(int code, String message){
         return new RestBean<>(requestId(), code, null, message);
     }
