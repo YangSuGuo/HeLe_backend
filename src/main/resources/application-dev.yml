@@ -21,6 +21,7 @@ spring:
     username: root
     password: 5409
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   security:
     jwt:
       key: 'ysg5409'

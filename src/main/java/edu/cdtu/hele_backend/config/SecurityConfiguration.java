@@ -2,7 +2,6 @@ package edu.cdtu.hele_backend.config;
 
 import edu.cdtu.hele_backend.entity.RestBean;
 import edu.cdtu.hele_backend.filter.JwtAuthenticationFilter;
-import edu.cdtu.hele_backend.utils.Const;
 import edu.cdtu.hele_backend.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
@@ -48,9 +47,9 @@ public class SecurityConfiguration {
         return http
                 // API授权
                 .authorizeHttpRequests(conf -> conf
-                        .requestMatchers("/api/auth/**", "/error")
-                        .permitAll().anyRequest().authenticated()
-//                        .hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限
+                                .requestMatchers("/api/auth/**", "/error")
+                                .permitAll().anyRequest().authenticated() // 允许所有请求
+//                        .hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限 【用户】
                 )
                 // 登录
                 .formLogin(conf -> conf
