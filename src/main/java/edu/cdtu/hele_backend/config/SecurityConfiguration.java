@@ -1,7 +1,11 @@
 package edu.cdtu.hele_backend.config;
 
 import edu.cdtu.hele_backend.entity.RestBean;
+import edu.cdtu.hele_backend.entity.dto.Account;
+import edu.cdtu.hele_backend.entity.vo.response.AuthorizeVO;
 import edu.cdtu.hele_backend.filter.JwtAuthenticationFilter;
+import edu.cdtu.hele_backend.service.AccountService;
+import edu.cdtu.hele_backend.utils.Const;
 import edu.cdtu.hele_backend.utils.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
@@ -35,6 +39,9 @@ public class SecurityConfiguration {
     @Resource
     JwtUtils utils;
 
+    @Resource
+    AccountService service;
+
     /**
      * 针对于 SpringSecurity 6 的新版配置方法
      *
@@ -48,8 +55,8 @@ public class SecurityConfiguration {
                 // API授权
                 .authorizeHttpRequests(conf -> conf
                                 .requestMatchers("/api/auth/**", "/error")
-                                .permitAll().anyRequest().authenticated() // 允许所有请求
-//                        .hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限 【用户】
+                                .permitAll().anyRequest().hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限 【用户】
+                        /*.authenticated()*/ // 允许所有请求
                 )
                 // 登录
                 .formLogin(conf -> conf
@@ -80,9 +87,18 @@ public class SecurityConfiguration {
                                         Authentication authentication) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
+
         User user = (User) authentication.getPrincipal();
-        String token = utils.createJwt(user, "user", 1);
-        response.getWriter().write(RestBean.success(token).asJsonString());
+        Account account = service.findUserByUsernameOrEmail(user.getUsername());
+        String token = utils.createJwt(user, account.getUsername(),account.getId());
+        AuthorizeVO vo = new AuthorizeVO();
+
+        vo.setUsername(account.getUsername());
+        vo.setRole(account.getRole());
+        vo.setToken(token);
+        vo.setExpire(utils.expireTime());
+
+        response.getWriter().write(RestBean.success(vo).asJsonString());
     }
 
     // 登录失败
