@@ -2,6 +2,7 @@ package edu.cdtu.hele_backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import edu.cdtu.hele_backend.entity.dto.Account;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author 31308
@@ -9,6 +10,7 @@ import edu.cdtu.hele_backend.entity.dto.Account;
  * @createDate 2024-04-16 12:14:49
  * @Entity edu.cdtu.hele_backend.entity.dto.Account
  */
+@Mapper
 public interface AccountMapper extends BaseMapper<Account> {
 }
 

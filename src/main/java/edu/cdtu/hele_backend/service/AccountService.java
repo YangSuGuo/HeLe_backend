@@ -10,5 +10,5 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 * @createDate 2024-04-16 12:14:49
 */
 public interface AccountService extends IService<Account>, UserDetailsService {
-
+    Account findUserByUsernameOrEmail(String user);
 }
