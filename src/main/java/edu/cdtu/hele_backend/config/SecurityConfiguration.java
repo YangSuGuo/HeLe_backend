@@ -54,9 +54,9 @@ public class SecurityConfiguration {
         return http
                 // API授权
                 .authorizeHttpRequests(conf -> conf
-                                .requestMatchers("/api/auth/**", "/error")
+                                .requestMatchers("/api/auth/**", "/error","/api/test/**")
                                 .permitAll().anyRequest().hasAnyRole(Const.ROLE_DEFAULT) // 设置用户权限 【用户】
-                        /*.authenticated()*/ // 允许所有请求
+//                        .authenticated() // 允许所有请求
                 )
                 // 登录
                 .formLogin(conf -> conf
